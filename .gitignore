@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+.pybin/
+py.cmd
+
+# ChromaDB / Vector Store local cache
+chroma_db/
+# SQLite database
+*.db
+*.db-journal
+
+# Logs & scratch
+.scratch/
+*.log
+
+# Environment variables
+.env
+
+# OS files
+.DS_Store
+Thumbs.db

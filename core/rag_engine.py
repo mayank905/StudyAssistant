@@ -839,6 +839,14 @@ class RAGEngine:
             "engine_status": self.provider_mgr.get_status(),
         }
 
+    def set_api_key(self, api_key: str) -> None:
+        """Dynamically update Gemini API key."""
+        self.provider_mgr.set_api_key(api_key)
+
+    def switch_engine(self, engine_type: str, api_key: Optional[str] = None) -> None:
+        """Switch active engine mode ('gemini', 'ollama', 'offline', 'auto')."""
+        self.provider_mgr.set_engine(engine_type, api_key=api_key)
+
 
 # ============================================================================
 # Singleton Accessor

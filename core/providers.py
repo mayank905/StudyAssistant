@@ -600,6 +600,13 @@ class ProviderManager:
         self.offline_llm = OfflineExtractiveLLMProvider()
         self.local_emb = LocalHashEmbeddingProvider()
 
+    def set_api_key(self, api_key: str) -> None:
+        """Update the Gemini API key and refresh active providers."""
+        self.api_key = api_key.strip() if api_key else ""
+        if self.api_key:
+            os.environ["GEMINI_API_KEY"] = self.api_key
+        self._init_providers()
+
     def set_engine(self, engine_type: str, api_key: Optional[str] = None) -> None:
         """Switch active engine mode ('gemini', 'ollama', 'offline', 'auto')."""
         self.engine_type = engine_type

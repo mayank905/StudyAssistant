@@ -192,8 +192,23 @@ if "flashcard_flipped" not in st.session_state:
 with st.sidebar:
     st.title("⚙️ StudyAssistant")
 
-    # 1. AI Engine Switcher (Dual Engine)
-    st.subheader("🤖 AI Engine")
+    # 1. AI Engine & Credentials Configuration (Cloud Run / Local)
+    st.subheader("🤖 AI Engine & Credentials")
+
+    if "gemini_api_key" not in st.session_state:
+        st.session_state.gemini_api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY") or ""
+
+    user_api_key = st.text_input(
+        "🔑 Gemini API Key",
+        value=st.session_state.gemini_api_key,
+        type="password",
+        placeholder="Paste your Gemini API key here...",
+        help="Required when running on Cloud Run or when local Ollama is not available. Get one free at aistudio.google.com",
+    )
+    if user_api_key != st.session_state.gemini_api_key:
+        st.session_state.gemini_api_key = user_api_key
+        rag_engine.set_api_key(user_api_key)
+
     pm_status = rag_engine.provider_mgr.get_status()
     engine_options = ["Auto (Cloud/Offline Fallback)", "Google Gemini (Cloud)", "Ollama / Local (Offline)"]
     selected_engine = st.selectbox(
@@ -209,7 +224,16 @@ with st.sidebar:
     else:
         rag_engine.provider_mgr.set_engine("auto")
 
-    st.caption(f"Active: **{pm_status['mode'].upper()}** ({pm_status['active_llm_provider']})")
+    # Refresh status after possible mode change
+    pm_status = rag_engine.provider_mgr.get_status()
+    if pm_status["gemini_available"]:
+        st.success(f"🟢 **Cloud LLM Connected** ({pm_status['active_model']})")
+    elif pm_status["ollama_available"]:
+        st.info(f"💻 **Local Ollama Connected** ({pm_status['active_model']})")
+    else:
+        st.warning(
+            "🟡 **Offline Extractive Mode**\n\nEnter a Gemini API key above to unlock full generative AI and deep oral viva grading."
+        )
 
     # 2. Strict Grounding Toggle
     strict_grounding = st.toggle("Strict Zero-Hallucination", value=True, help="Refuse questions not answered in the study documents.")
